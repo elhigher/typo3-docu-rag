@@ -38,7 +38,7 @@ async function initialize() {
 /**
  * Small-to-Big Retrieval Implementation
  */
-async function searchDocs(query: string, limit: number = 5) {
+async function searchDocs(query: string, limit: number = 5, repo?: string) {
   const chunksTable = await db.openTable("chunks");
   const parentsTable = await db.openTable("parents");
 
@@ -47,10 +47,15 @@ async function searchDocs(query: string, limit: number = 5) {
   const vector = Array.from(output.data) as number[];
 
   // 2. Search "Small" (Chunks)
-  const results = await chunksTable
+  let searchBuilder = chunksTable
     .vectorSearch(vector)
-    .limit(limit * 3) // Fetch more chunks to ensure we get unique parents
-    .toArray();
+    .limit(limit * 3); // Fetch more chunks to ensure we get unique parents
+
+  if (repo) {
+    searchBuilder = searchBuilder.where(`repo = '${repo}'`);
+  }
+
+  const results = await searchBuilder.toArray();
 
   // 3. Resolve to "Big" (Parents)
   const uniqueParentIds = Array.from(new Set(results.map(r => r.parent_id))).slice(0, limit);
@@ -98,6 +103,11 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
               type: "number",
               description: "Maximum number of sections to return (default: 5)",
               default: 5
+            },
+            repo: {
+              type: "string",
+              description: "Optional repository filter. Use 'CoreApi', 'Typoscript', or 'TCA'.",
+              enum: ["CoreApi", "Typoscript", "TCA"]
             }
           },
           required: ["query"]
@@ -129,8 +139,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
 
     if (name === "search_docs") {
-      const { query, limit } = args as { query: string, limit?: number };
-      const results = await searchDocs(query, limit);
+      const { query, limit, repo } = args as { query: string, limit?: number, repo?: string };
+      const results = await searchDocs(query, limit, repo);
       
       return {
         content: results.map(doc => ({
