@@ -37,10 +37,10 @@ async function testSearch(query: string) {
       console.log(`\n--- Result ---`);
       console.log(`Title: ${docs[0].title}`);
       console.log(`URL: ${docs[0].url}`);
-      console.log(`Content Preview: ${docs[0].content.substring(0, 200)}...`);
+      console.log(`Content Preview: ${docs[0].content}`);
     }
   }
 }
 
-const query = process.argv[2] || "How to register a middleware?";
+const query = process.argv[2] || "How to configure a bidirectional symmetric relation with intermediate table?";
 testSearch(query).catch(console.error);
