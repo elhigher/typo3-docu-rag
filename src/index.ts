@@ -31,23 +31,34 @@ let embedder: any;
  * Initialize Database and Embedding Model
  */
 async function initialize() {
+  if (!fs.existsSync(DB_DIR)) {
+    throw new Error(
+      `Index not found at ${DB_DIR}.\n` +
+      `Run setup first: npx github:elhigher/typo3-docu-rag setup`
+    );
+  }
   embedder = await pipeline('feature-extraction', MODEL_NAME);
   console.error(`Loaded embedding model: ${MODEL_NAME}.`);
-
-  if (!fs.existsSync(DB_DIR)) {
-    if (fs.existsSync(BUNDLED_DOCS)) {
-      console.error('First run: building index from bundled docs (~1-2 min)...');
-      await buildIndex(BUNDLED_DOCS, DB_DIR, embedder);
-    } else {
-      throw new Error(
-        `Database not found at ${DB_DIR}. ` +
-        `Run: npm run fetch && npm run render && npm run parse && npm run index`
-      );
-    }
-  }
-
   db = await lancedb.connect(DB_DIR);
   console.error('Connected to LanceDB.');
+}
+
+async function runSetup() {
+  if (fs.existsSync(DB_DIR)) {
+    console.log(`Index already exists at ${DB_DIR}`);
+    console.log('To rebuild, delete that directory and run setup again.');
+    return;
+  }
+  if (!fs.existsSync(BUNDLED_DOCS)) {
+    throw new Error(`Bundled docs not found at ${BUNDLED_DOCS}.`);
+  }
+  console.log('Loading embedding model (downloads ~30 MB on first run)...');
+  const setupEmbedder = await pipeline('feature-extraction', MODEL_NAME);
+  console.log('Building vector index (~1-5 min depending on hardware)...');
+  await buildIndex(BUNDLED_DOCS, DB_DIR, setupEmbedder);
+  console.log(`\nSetup complete! Index stored at ${DB_DIR}`);
+  console.log('Add the MCP server to Claude Code:');
+  console.log('  claude mcp add typo3-docs -s user -- npx -y github:elhigher/typo3-docu-rag');
 }
 
 /**
@@ -204,7 +215,8 @@ async function runServer() {
   console.error("TYPO3 RAG MCP Server started.");
 }
 
-runServer().catch((error) => {
-  console.error("Fatal error running server:", error);
-  process.exit(1);
-});
+if (process.argv[2] === 'setup') {
+  runSetup().catch((error) => { console.error(error.message); process.exit(1); });
+} else {
+  runServer().catch((error) => { console.error("Fatal error running server:", error); process.exit(1); });
+}

@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
-npm run build        # compile TypeScript → dist/
+npm run build        # compile TypeScript → dist/ (required before other scripts)
 npm run fetch        # clone/pull TYPO3 doc repos into data/raw/
 npm run render       # render .rst → HTML via Docker (requires Docker)
 npm run parse        # parse rendered HTML → data/processed/all_docs.json
@@ -13,10 +13,7 @@ npm run index        # embed chunks and build LanceDB tables
 npm start            # run the MCP server (requires indexed data)
 ```
 
-Scripts can also be run directly during development without a full build:
-```bash
-node --loader ts-node/esm src/scripts/<script>.ts
-```
+All pipeline scripts run from `dist/` — run `npm run build` first.
 
 Test search without starting the full server:
 ```bash

@@ -21,13 +21,14 @@ Documentation is fetched from the official TYPO3 GitHub repositories, rendered l
 
 ## Setup
 
-### 1. Install dependencies
+### 1. Install dependencies and build
 
 ```bash
 npm install
+npm run build
 ```
 
-### 2. Build the ingestion pipeline
+### 2. Run the ingestion pipeline
 
 Run the following steps in order. Each step only needs to be re-run if the upstream documentation changes.
 
@@ -35,31 +36,38 @@ Run the following steps in order. Each step only needs to be re-run if the upstr
 npm run fetch    # clone TYPO3 doc repos into data/raw/
 npm run render   # render .rst → HTML via Docker (takes a few minutes)
 npm run parse    # parse HTML → data/processed/all_docs.json
-npm run index    # embed and index into LanceDB
+npm run index    # embed and index into LanceDB (~1-5 min)
 ```
 
-### 3. Build the server
-
-```bash
-npm run build
-```
+All scripts run from `dist/` — `npm run build` must be done first.
 
 ## MCP Configuration
 
 ### Using npx
 
+**Step 1 — run setup once** (builds the vector index, ~1–5 min):
+```bash
+npx -y github:elhigher/typo3-docu-rag setup
+```
+
+**Step 2 — add to Claude Code:**
+```bash
+claude mcp add typo3-docs -s user -- npx -y github:elhigher/typo3-docu-rag
+```
+
+Or add manually to `~/.claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
     "typo3-docs": {
       "command": "npx",
-      "args": ["-y", "typo3-docu-rag"]
+      "args": ["-y", "github:elhigher/typo3-docu-rag"]
     }
   }
 }
 ```
 
-On first start the server automatically builds the vector index from the bundled documentation (~1–2 min). The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on subsequent starts.
+The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on all subsequent starts.
 
 ### Using a local clone
 
