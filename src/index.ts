@@ -8,13 +8,19 @@ import {
 import * as lancedb from "@lancedb/lancedb";
 import { pipeline } from "@xenova/transformers";
 import * as path from "path";
+import * as os from "os";
 import { fileURLToPath } from "url";
 import * as fs from "fs";
+import { buildIndex } from "./lib/indexer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const DB_DIR = path.resolve(__dirname, "../data/lancedb");
+const DATA_DIR = process.env.TYPO3_RAG_DATA_DIR
+  ? path.resolve(process.env.TYPO3_RAG_DATA_DIR)
+  : path.join(os.homedir(), '.typo3-docu-rag');
+const DB_DIR = path.join(DATA_DIR, 'lancedb');
+const BUNDLED_DOCS = path.resolve(__dirname, '../data/processed/all_docs.json');
 const MODEL_NAME = 'Xenova/bge-small-en-v1.5';
 
 // Global instances
@@ -25,15 +31,23 @@ let embedder: any;
  * Initialize Database and Embedding Model
  */
 async function initialize() {
-  if (!fs.existsSync(DB_DIR)) {
-    throw new Error(`Database not found at ${DB_DIR}. Run indexing first.`);
-  }
-  
-  db = await lancedb.connect(DB_DIR);
-  console.error("Connected to LanceDB.");
-  
   embedder = await pipeline('feature-extraction', MODEL_NAME);
   console.error(`Loaded embedding model: ${MODEL_NAME}.`);
+
+  if (!fs.existsSync(DB_DIR)) {
+    if (fs.existsSync(BUNDLED_DOCS)) {
+      console.error('First run: building index from bundled docs (~1-2 min)...');
+      await buildIndex(BUNDLED_DOCS, DB_DIR, embedder);
+    } else {
+      throw new Error(
+        `Database not found at ${DB_DIR}. ` +
+        `Run: npm run fetch && npm run render && npm run parse && npm run index`
+      );
+    }
+  }
+
+  db = await lancedb.connect(DB_DIR);
+  console.error('Connected to LanceDB.');
 }
 
 /**
@@ -107,8 +121,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             repo: {
               type: "string",
-              description: "Optional repository filter. Use 'CoreApi', 'Typoscript', or 'TCA'.",
-              enum: ["CoreApi", "Typoscript", "TCA"]
+              description: "Optional repository filter. Use 'CoreApi', 'Typoscript', 'TCA', or 'Fluid'.",
+              enum: ["CoreApi", "Typoscript", "TCA", "Fluid"]
             }
           },
           required: ["query"]

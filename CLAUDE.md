@@ -50,8 +50,10 @@ Parent IDs are MD5 hashes of `${repo}-${sourceFile}-${sectionTitle}-${index}`. C
 |------|----------|
 | `data/raw/` | Cloned git repos (RST source) |
 | `data/raw/<repo>/Documentation-GENERATED-temp/` | Rendered HTML (Docker output) |
-| `data/processed/all_docs.json` | Parsed sections with chunks (~18 MB) |
-| `data/lancedb/` | LanceDB vector database |
+| `data/processed/all_docs.json` | Parsed sections with chunks (~18 MB) — shipped with npm package |
+| `~/.typo3-docu-rag/lancedb/` | LanceDB vector database (default, stable across npx runs) |
+
+Set `TYPO3_RAG_DATA_DIR` to override the database location (e.g. `TYPO3_RAG_DATA_DIR=./data` to use the legacy project-local path).
 
 ### Module system
 

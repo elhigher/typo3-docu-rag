@@ -46,7 +46,7 @@ npm run build
 
 ## MCP Configuration
 
-### Using npx (no local setup required after publishing)
+### Using npx
 
 ```json
 {
@@ -58,6 +58,8 @@ npm run build
   }
 }
 ```
+
+On first start the server automatically builds the vector index from the bundled documentation (~1–2 min). The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on subsequent starts.
 
 ### Using a local clone
 
