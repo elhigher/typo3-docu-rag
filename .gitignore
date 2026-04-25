@@ -7,9 +7,6 @@ node_modules/
 # Compiled outputs
 dist/
 
-# Local data (Hiding from Pi/Agent to force MCP tool usage)
-data/
-
 # Environment
 .env
 
