@@ -9,11 +9,18 @@ npm run build        # compile TypeScript → dist/ (required before other scrip
 npm run fetch        # clone/pull TYPO3 doc repos into data/raw/
 npm run render       # render .rst → HTML via Docker (requires Docker)
 npm run parse        # parse rendered HTML → data/processed/all_docs.json
-npm run index        # embed chunks and build LanceDB tables
+npm run index        # embed chunks and build LanceDB tables (~1-5 min)
 npm start            # run the MCP server (requires indexed data)
 ```
 
 All pipeline scripts run from `dist/` — run `npm run build` first.
+
+One-time index build for end users (no clone required):
+```bash
+node dist/index.js setup   # or: npx -y github:elhigher/typo3-docu-rag setup
+```
+
+This is the `setup` subcommand in `src/index.ts` — it reads the bundled `data/processed/all_docs.json` and writes the LanceDB index to `~/.typo3-docu-rag/lancedb/`. The server itself (`npm start`) fails fast if the index is missing rather than building it on startup.
 
 Test search without starting the full server:
 ```bash
