@@ -14,41 +14,22 @@ Documentation is fetched from the official TYPO3 GitHub repositories, rendered l
 - [TCA Reference](https://docs.typo3.org/m/typo3/reference-tca/13.4/en-us/)
 - [Fluid ViewHelper Reference](https://docs.typo3.org/m/typo3/reference-fluid/13.4/en-us/)
 
-## Prerequisites
+## Installation
 
-- Node.js 18+
-- Docker (for rendering RST documentation to HTML)
+Choose one of two installation modes — **npx** (zero-config, no clone needed) or **local clone** (for development or re-parsing the docs yourself).
 
-## Setup
+---
 
-### 1. Install dependencies and build
+### Option A — npx (recommended)
 
-```bash
-npm install
-npm run build
-```
+> Prerequisites: Node.js 18+
 
-### 2. Run the ingestion pipeline
-
-Run the following steps in order. Each step only needs to be re-run if the upstream documentation changes.
-
-```bash
-npm run fetch    # clone TYPO3 doc repos into data/raw/
-npm run render   # render .rst → HTML via Docker (takes a few minutes)
-npm run parse    # parse HTML → data/processed/all_docs.json
-npm run index    # embed and index into LanceDB (~1-5 min)
-```
-
-All scripts run from `dist/` — `npm run build` must be done first.
-
-## MCP Configuration
-
-### Using npx
-
-**Step 1 — run setup once** (builds the vector index, ~1–5 min):
+**Step 1 — build the vector index once** (~1–5 min):
 ```bash
 npx -y github:elhigher/typo3-docu-rag setup
 ```
+
+The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on all subsequent starts.
 
 **Step 2 — add to Claude Code:**
 ```bash
@@ -67,10 +48,24 @@ Or add manually to `~/.claude/claude_desktop_config.json`:
 }
 ```
 
-The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on all subsequent starts.
+---
 
-### Using a local clone
+### Option B — local clone
 
+> Prerequisites: Node.js 18+, Docker (only needed if re-rendering the docs)
+
+**Step 1 — install dependencies and build:**
+```bash
+npm install
+npm run build
+```
+
+**Step 2 — add to Claude Code:**
+```bash
+claude mcp add typo3-docs -s user -- node /path/to/typo3-docu-rag/dist/index.js
+```
+
+Or add manually to `~/.claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
@@ -82,11 +77,23 @@ The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on all subsequent
 }
 ```
 
-Add this to your Claude Desktop config (`~/.claude/claude_desktop_config.json`) or use the Claude Code CLI:
+**Step 3 — build the vector index once** (~1–5 min):
+```bash
+npm run index
+```
+
+#### Re-indexing from source (optional)
+
+Only needed if you want to re-fetch or re-render the upstream TYPO3 documentation. Run the pipeline steps in order — each step only needs to be re-run if the upstream docs change:
 
 ```bash
-claude mcp add typo3-docs -s user -- node /path/to/typo3-docu-rag/dist/index.js
+npm run fetch    # clone TYPO3 doc repos into data/raw/
+npm run render   # render .rst → HTML via Docker (takes a few minutes)
+npm run parse    # parse HTML → data/processed/all_docs.json
+npm run index    # embed and index into LanceDB (~1-5 min)
 ```
+
+All scripts run from `dist/` — `npm run build` must be done first.
 
 ## MCP Tools
 

@@ -30,6 +30,11 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
+  "overrides": {
+    "protobufjs": "^7.5.5",
+    "hono": "^4.12.15",
+    "@hono/node-server": "^1.19.14"
+  },
   "dependencies": {
     "@lancedb/lancedb": "^0.27.2",
     "@modelcontextprotocol/sdk": "^1.29.0",
