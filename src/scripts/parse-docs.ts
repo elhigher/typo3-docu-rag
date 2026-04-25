@@ -12,7 +12,7 @@ import * as readline from 'readline';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const HTML_DATA_DIR = path.resolve(__dirname, '../../data/html');
+const RAW_DATA_DIR = path.resolve(__dirname, '../../data/raw');
 const PROCESSED_DATA_DIR = path.resolve(__dirname, '../../data/processed');
 
 interface DocChunk {
@@ -92,7 +92,7 @@ async function parseDocs() {
   let totalParsedSections = 0;
 
   for (const repoName of Object.keys(REPO_URL_MAP)) {
-    const repoPath = path.join(HTML_DATA_DIR, repoName);
+    const repoPath = path.join(RAW_DATA_DIR, repoName, 'Documentation-GENERATED-temp');
 
     if (!fs.existsSync(repoPath)) {
       console.warn(`[${repoName}] Directory not found at ${repoPath}`);

@@ -1,11 +1,21 @@
 {
-  "name": "typo3-rag-gemini",
+  "name": "typo3-docu-rag",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "bin": {
+    "typo3-docu-rag": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/index.js",
     "start": "node dist/index.js",
+    "fetch": "node --loader ts-node/esm src/scripts/fetch-docs.ts",
+    "render": "node --loader ts-node/esm src/scripts/render-docs.ts",
+    "parse": "node --loader ts-node/esm src/scripts/parse-docs.ts",
+    "index": "node --loader ts-node/esm src/scripts/index-docs.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

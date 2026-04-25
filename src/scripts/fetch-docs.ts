@@ -21,6 +21,11 @@ const REPOS = [
     url: 'https://github.com/TYPO3-Documentation/TYPO3CMS-Reference-TCA.git',
     branch: '13.4',
     name: 'TCA'
+  },
+  {
+    url: 'https://github.com/TYPO3-Documentation/TYPO3CMS-Reference-ViewHelper.git',
+    branch: '13.4',
+    name: 'Fluid'
   }
 ];
 
@@ -31,13 +36,19 @@ async function fetchDocs() {
     fs.mkdirSync(RAW_DATA_DIR, { recursive: true });
   }
 
-  const git: SimpleGit = simpleGit();
+  const git: SimpleGit = simpleGit({ config: ['credential.helper='] });
 
   for (const repo of REPOS) {
     const targetPath = path.join(RAW_DATA_DIR, repo.name);
     
     if (fs.existsSync(targetPath)) {
-      console.log(`[${repo.name}] Already exists, skipping...`);
+      console.log(`[${repo.name}] Pulling latest...`);
+      try {
+        await simpleGit(targetPath, { config: ['credential.helper='] }).pull();
+        console.log(`[${repo.name}] Up to date.`);
+      } catch (error) {
+        console.error(`[${repo.name}] Pull error:`, error);
+      }
       continue;
     }
 
