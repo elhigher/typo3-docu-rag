@@ -24,19 +24,21 @@ Choose one of two installation modes — **npx** (zero-config, no clone needed) 
 
 > Prerequisites: Node.js 18+
 
-**Step 1 — build the vector index once** (~1–5 min):
+**Step 1 — build the vector index once** (~5–25 min depending on your setup):
 ```bash
 npx -y github:elhigher/typo3-docu-rag setup
 ```
 
 The index is stored in `~/.typo3-docu-rag/lancedb/` and reused on all subsequent starts.
 
-**Step 2 — add to Claude Code:**
+**Step 2 — add to your coding agent**
+
+Claude Code:
 ```bash
 claude mcp add typo3-docs -s user -- npx -y github:elhigher/typo3-docu-rag
 ```
 
-Or add manually to `~/.claude/claude_desktop_config.json`:
+Or add manually to your agents `mcp.json`:
 ```json
 {
   "mcpServers": {
@@ -60,12 +62,14 @@ npm install
 npm run build
 ```
 
-**Step 2 — add to Claude Code:**
+**Step 2 — add to your coding agent**
+
+Claude Code:
 ```bash
 claude mcp add typo3-docs -s user -- node /path/to/typo3-docu-rag/dist/index.js
 ```
 
-Or add manually to `~/.claude/claude_desktop_config.json`:
+Or add manually to your agents `mcp.json`:
 ```json
 {
   "mcpServers": {
@@ -77,7 +81,7 @@ Or add manually to `~/.claude/claude_desktop_config.json`:
 }
 ```
 
-**Step 3 — build the vector index once** (~1–5 min):
+**Step 3 — build the vector index once** (~5–25 min depending on your setup):
 ```bash
 npm run index
 ```
@@ -90,7 +94,7 @@ Only needed if you want to re-fetch or re-render the upstream TYPO3 documentatio
 npm run fetch    # clone TYPO3 doc repos into data/raw/
 npm run render   # render .rst → HTML via Docker (takes a few minutes)
 npm run parse    # parse HTML → data/processed/all_docs.json
-npm run index    # embed and index into LanceDB (~1-5 min)
+npm run index    # embed and index into LanceDB (~5-25 min)
 ```
 
 All scripts run from `dist/` — `npm run build` must be done first.
