@@ -16,7 +16,12 @@ const DATA_DIR = process.env.TYPO3_RAG_DATA_DIR
     : path.join(os.homedir(), '.typo3-docu-rag');
 const DB_DIR = path.join(DATA_DIR, 'lancedb');
 const BUNDLED_DOCS = path.resolve(__dirname, '../data/processed/all_docs.json');
+const BEST_PRACTICES_DIR = path.resolve(__dirname, '../data/best-practices');
 const MODEL_NAME = 'Xenova/bge-small-en-v1.5';
+const BEST_PRACTICES_VERSIONS = {
+    '12': path.join(BEST_PRACTICES_DIR, 'v12.md'),
+    '13': path.join(BEST_PRACTICES_DIR, 'v13.md'),
+};
 // Global instances
 let db;
 let embedder;
@@ -129,6 +134,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                     },
                     required: ["id"]
                 }
+            },
+            {
+                name: "get_best_practices",
+                description: "Get curated TYPO3 extension development best practices for a specific major version, synthesized from all changelog entries for that release line. Call this when starting, reviewing, or auditing a TYPO3 extension to get a complete picture of what changed and what patterns to use. Available versions: 12, 13.",
+                inputSchema: {
+                    type: "object",
+                    properties: {
+                        version: {
+                            type: "string",
+                            description: "TYPO3 major version. One of: '12', '13'.",
+                            enum: ["12", "13"]
+                        }
+                    },
+                    required: ["version"]
+                }
             }
         ],
     };
@@ -164,6 +184,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                         type: "text",
                         text: `Title: ${docs[0].title}\nURL: ${docs[0].url}\n\nContent:\n${docs[0].content}`
                     }]
+            };
+        }
+        if (name === "get_best_practices") {
+            const { version } = args;
+            const filePath = BEST_PRACTICES_VERSIONS[version];
+            if (!filePath || !fs.existsSync(filePath)) {
+                return {
+                    content: [{ type: "text", text: `No best practices file found for TYPO3 v${version}. Available versions: ${Object.keys(BEST_PRACTICES_VERSIONS).join(', ')}.` }],
+                    isError: true
+                };
+            }
+            const content = fs.readFileSync(filePath, 'utf-8');
+            return {
+                content: [{ type: "text", text: content }]
             };
         }
         throw new Error(`Tool not found: ${name}`);

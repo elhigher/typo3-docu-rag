@@ -40,9 +40,10 @@ This is a RAG (Retrieval-Augmented Generation) system exposed as an MCP server. 
 
 ### MCP server (`src/index.ts`)
 
-Exposes two tools over stdio transport:
+Exposes three tools over stdio transport:
 - **`search_docs(query, limit?, repo?)`** — Small-to-Big retrieval: vector-searches the `chunks` table, then resolves matched chunks back to their `parents` for full-context responses. `repo` filters to `CoreApi`, `Typoscript`, `TCA`, `Fluid`, or `Changelog`.
 - **`get_doc_by_id(id)`** — direct parent document lookup by MD5 hash ID.
+- **`get_best_practices(version)`** — returns the full curated best practices document for a TYPO3 major version (`"12"` or `"13"`), synthesized from all changelog entries for that release line. Files live in `data/best-practices/v12.md` and `data/best-practices/v13.md` and are shipped with the npm package.
 
 ### ID scheme
 
@@ -55,6 +56,8 @@ Parent IDs are MD5 hashes of `${repo}-${sourceFile}-${sectionTitle}-${index}`. C
 | `data/raw/` | Cloned git repos (RST source) |
 | `data/raw/<repo>/Documentation-GENERATED-temp/` | Rendered HTML (Docker output) |
 | `data/processed/all_docs.json` | Parsed sections with chunks (~32 MB) — shipped with npm package |
+| `data/best-practices/v12.md` | Curated v12.x best practices (synthesized from 526 changelog entries) — shipped with npm package |
+| `data/best-practices/v13.md` | Curated v13.x best practices (synthesized from 356 changelog entries) — shipped with npm package |
 | `~/.typo3-docu-rag/lancedb/` | LanceDB vector database (default, stable across npx runs) |
 
 Set `TYPO3_RAG_DATA_DIR` to override the database location (e.g. `TYPO3_RAG_DATA_DIR=./data` to use the legacy project-local path).
