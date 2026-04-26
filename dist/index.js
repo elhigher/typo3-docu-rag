@@ -18,7 +18,9 @@ const DB_DIR = path.join(DATA_DIR, 'lancedb');
 const BUNDLED_DOCS = path.resolve(__dirname, '../data/processed/all_docs.json');
 const BEST_PRACTICES_DIR = path.resolve(__dirname, '../data/best-practices');
 const MODEL_NAME = 'Xenova/bge-small-en-v1.5';
+const BEST_PRACTICES_VERSION_ORDER = ['11', '12', '13'];
 const BEST_PRACTICES_VERSIONS = {
+    '11': path.join(BEST_PRACTICES_DIR, 'v11.md'),
     '12': path.join(BEST_PRACTICES_DIR, 'v12.md'),
     '13': path.join(BEST_PRACTICES_DIR, 'v13.md'),
 };
@@ -137,14 +139,14 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             },
             {
                 name: "get_best_practices",
-                description: "Get curated TYPO3 extension development best practices for a specific major version, synthesized from all changelog entries for that release line. Call this when starting, reviewing, or auditing a TYPO3 extension to get a complete picture of what changed and what patterns to use. Available versions: 12, 13.",
+                description: "Get curated TYPO3 extension development best practices for a specific major version. Returns best practices for all versions up to and including the requested one in cascade (e.g. v13 returns v11+v12+v13). Higher versions supersede lower ones on contradictions. Call this when starting, reviewing, or auditing a TYPO3 extension. Available versions: 11, 12, 13.",
                 inputSchema: {
                     type: "object",
                     properties: {
                         version: {
                             type: "string",
-                            description: "TYPO3 major version. One of: '12', '13'.",
-                            enum: ["12", "13"]
+                            description: "TYPO3 major version. One of: '11', '12', '13'.",
+                            enum: ["11", "12", "13"]
                         }
                     },
                     required: ["version"]
@@ -188,16 +190,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         }
         if (name === "get_best_practices") {
             const { version } = args;
-            const filePath = BEST_PRACTICES_VERSIONS[version];
-            if (!filePath || !fs.existsSync(filePath)) {
+            if (!BEST_PRACTICES_VERSIONS[version]) {
                 return {
-                    content: [{ type: "text", text: `No best practices file found for TYPO3 v${version}. Available versions: ${Object.keys(BEST_PRACTICES_VERSIONS).join(', ')}.` }],
+                    content: [{ type: "text", text: `No best practices file found for TYPO3 v${version}. Available versions: ${BEST_PRACTICES_VERSION_ORDER.join(', ')}.` }],
                     isError: true
                 };
             }
-            const content = fs.readFileSync(filePath, 'utf-8');
+            const versionsToInclude = BEST_PRACTICES_VERSION_ORDER.slice(0, BEST_PRACTICES_VERSION_ORDER.indexOf(version) + 1);
+            const sections = versionsToInclude.map((v) => {
+                const filePath = BEST_PRACTICES_VERSIONS[v];
+                if (!fs.existsSync(filePath))
+                    return null;
+                return fs.readFileSync(filePath, 'utf-8');
+            }).filter(Boolean);
+            const combined = sections.length === 1
+                ? sections[0]
+                : `> Best practices are shown in version order (v${versionsToInclude[0]}→v${version}). Where versions contradict, the **higher version takes precedence**.\n\n` +
+                    sections.map((s, i) => `---\n\n<!-- v${versionsToInclude[i]} -->\n\n${s}`).join('\n\n');
             return {
-                content: [{ type: "text", text: content }]
+                content: [{ type: "text", text: combined }]
             };
         }
         throw new Error(`Tool not found: ${name}`);

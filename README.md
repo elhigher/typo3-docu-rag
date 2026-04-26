@@ -106,7 +106,7 @@ All scripts run from `dist/` — `npm run build` must be done first.
 |------|-------------|
 | `search_docs(query, limit?, repo?)` | Semantic search returning full documentation sections. `repo` optionally filters to `CoreApi`, `Typoscript`, `TCA`, `Fluid`, or `Changelog`. |
 | `get_doc_by_id(id)` | Retrieve a specific documentation section by ID. |
-| `get_best_practices(version)` | Returns curated extension development best practices for a TYPO3 major version (`"12"` or `"13"`), synthesized from all changelog entries for that release line. Use this when starting or auditing a TYPO3 extension. |
+| `get_best_practices(version)` | Returns curated extension development best practices for a TYPO3 major version (`"11"`, `"12"`, or `"13"`). Cascades across versions — requesting `"13"` returns v11 + v12 + v13 combined, with higher versions taking precedence on contradictions. Use this when starting or auditing a TYPO3 extension. |
 
 ## Tech stack
 
