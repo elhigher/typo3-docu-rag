@@ -4,6 +4,8 @@ node_modules/
 # Jetbrains project
 .idea/
 
+.claude
+
 # Local data
 data/*
 !data/processed/all_docs.json

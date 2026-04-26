@@ -1,4 +1,4 @@
-# typo3-docu-rag
+# TYPO3 Documentation RAG
 
 An MCP (Model Context Protocol) server that provides semantic search over TYPO3 v13.4 documentation. Ask Claude or any MCP-compatible AI agent questions about TYPO3 and get answers grounded in the official docs.
 
