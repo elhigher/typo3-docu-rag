@@ -13,6 +13,7 @@ Documentation is fetched from the official TYPO3 GitHub repositories, rendered l
 - [TypoScript Reference](https://docs.typo3.org/m/typoscript/reference-typoscript/13.4/en-us/)
 - [TCA Reference](https://docs.typo3.org/m/typo3/reference-tca/13.4/en-us/)
 - [Fluid ViewHelper Reference](https://docs.typo3.org/m/typo3/reference-fluid/13.4/en-us/)
+- [Changelog](https://docs.typo3.org/c/typo3/cms-core/main/en-us/)
 
 ## Installation
 
@@ -103,7 +104,7 @@ All scripts run from `dist/` — `npm run build` must be done first.
 
 | Tool | Description |
 |------|-------------|
-| `search_docs(query, limit?, repo?)` | Semantic search returning full documentation sections. `repo` optionally filters to `CoreApi`, `Typoscript`, `TCA`, or `Fluid`. |
+| `search_docs(query, limit?, repo?)` | Semantic search returning full documentation sections. `repo` optionally filters to `CoreApi`, `Typoscript`, `TCA`, `Fluid`, or `Changelog`. |
 | `get_doc_by_id(id)` | Retrieve a specific documentation section by ID. |
 
 ## Tech stack

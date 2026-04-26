@@ -24,6 +24,11 @@ const REPOS = [
         url: 'https://github.com/TYPO3-Documentation/TYPO3CMS-Reference-ViewHelper.git',
         branch: '13.4',
         name: 'Fluid'
+    },
+    {
+        url: 'https://github.com/TYPO3-CMS/core.git',
+        branch: '13.4',
+        name: 'Changelog'
     }
 ];
 const RAW_DATA_DIR = path.resolve(__dirname, '../../data/raw');

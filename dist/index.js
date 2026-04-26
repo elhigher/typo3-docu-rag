@@ -109,8 +109,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
                         },
                         repo: {
                             type: "string",
-                            description: "Optional repository filter. Use 'CoreApi', 'Typoscript', 'TCA', or 'Fluid'.",
-                            enum: ["CoreApi", "Typoscript", "TCA", "Fluid"]
+                            description: "Optional repository filter. Use 'CoreApi', 'Typoscript', 'TCA', 'Fluid' or 'Changelog'.",
+                            enum: ["CoreApi", "Typoscript", "TCA", "Fluid", "Changelog"]
                         }
                     },
                     required: ["query"]

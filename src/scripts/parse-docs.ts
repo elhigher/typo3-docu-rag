@@ -34,7 +34,8 @@ const REPO_URL_MAP: Record<string, string> = {
   'CoreApi': 'https://docs.typo3.org/m/typoscript/reference-coreapi/13.4/en-us/',
   'Typoscript': 'https://docs.typo3.org/m/typoscript/reference-typoscript/13.4/en-us/',
   'TCA': 'https://docs.typo3.org/m/typo3/reference-tca/13.4/en-us/',
-  'Fluid': 'https://docs.typo3.org/m/typo3/reference-fluid/13.4/en-us/'
+  'Fluid': 'https://docs.typo3.org/m/typo3/reference-fluid/13.4/en-us/',
+  'Changelog': 'https://docs.typo3.org/c/typo3/cms-core/main/en-us/'
 };
 
 const turndownService = new TurndownService({
